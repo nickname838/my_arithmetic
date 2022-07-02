@@ -103,22 +103,46 @@ void encode(string file) {
     int index = 0;
     while(!feof(in)) {
         ch = fgetc(in);
-        index = getindex(ch, vec);
-        high = low + inter[index] * diff / div - 1;
-        low = low + inter[index - 1] * diff / div;
-        while(1) {
-            if(high < half) followbits(0, fbits, bitl, wbit, out);
-            else if(low >= half) {
-                followbits(1, fbits, bitl, wbit, out);
-                low -= half;
-                high -= half;
-            } else if(low >= qtr1 && high < qtr3) {
-                fbits++;
-                low -= qtr1;
-                high -= qtr1;
-            } else break;
-            low += low;
-            high += high + 1;
+        if(!feof(in)) {
+            index = getindex(ch, vec);
+            high = low + inter[index] * diff / div - 1;
+            low = low + inter[index - 1] * diff / div;
+            while(1) {
+                if(high < half) followbits(0, fbits, bitl, wbit, out);
+                else if(low >= half) {
+                    followbits(1, fbits, bitl, wbit, out);
+                    low -= half;
+                    high -= half;
+                } else if(low >= qtr1 && high < qtr3) {
+                    fbits++;
+                    low -= qtr1;
+                    high -= qtr1;
+                } else break;
+                low += low;
+                high += high + 1;
+            }
+        } else {
+            high = low + inter[1] * diff / div - 1;
+            low = low + inter[0] * diff / div;
+            while(1) {
+                if(high < half) followbits(0, fbits, bitl, wbit, out);
+                else if(low >= half) {
+                    followbits(1, fbits, bitl, wbit, out);
+                    low -= half;
+                    high -= half;
+                } else if(low >= qtr1 && high < qtr3) {
+                    fbits++;
+                    low -= qtr1;
+                    high -= qtr1;
+                } else break;
+                low += low;
+                high += high + 1;
+            }
+            fbits++;
+            if(low < qtr1) followbits(0, fbits, bitl, wbit, out);
+            else followbits(1, fbits, bitl, wbit, out);
+            wbit >>= bitl;
+            fputc(wbit, out);
         }
         diff = high - low + 1;
     }
